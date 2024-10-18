@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,  //lo ajsuto en slo vertical porque no se ve bien en horizontal xD
+  ]);
+
   runApp(const MyApp());
 }
 
@@ -24,7 +30,8 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tarjeta de Producto', color: Colors.indigo,
+      title: 'Tarjeta de Producto',
+      color: Colors.indigo,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepOrange,
@@ -49,14 +56,15 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-void _mostrarDialogo(
-    BuildContext context, String titulo, List<String> caracteristicas, String beneficios) {
+void _mostrarDialogo(BuildContext context, String titulo,
+    List<String> caracteristicas, String beneficios) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return LayoutBuilder(
         builder: (context, constraints) {
-          double dialogWidth = constraints.maxWidth > 600 ? 600 : constraints.maxWidth * 0.9;
+          double dialogWidth =
+              constraints.maxWidth > 600 ? 600 : constraints.maxWidth * 0.9;
           return Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(28.0),
@@ -83,14 +91,18 @@ void _mostrarDialogo(
                   children: [
                     Text(
                       titulo,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 24),
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primaryContainer
+                            .withOpacity(0.3),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       padding: const EdgeInsets.all(16),
@@ -106,40 +118,49 @@ void _mostrarDialogo(
                               const SizedBox(width: 8),
                               Text(
                                 'Características:',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 12),
                           ...caracteristicas.map((caracteristica) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.arrow_right,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 20,
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.arrow_right,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        caracteristica,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    caracteristica,
-                                    style: Theme.of(context).textTheme.bodyLarge,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )),
+                              )),
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
                     Container(
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.3),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondaryContainer
+                            .withOpacity(0.3),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       padding: const EdgeInsets.all(16),
@@ -155,9 +176,12 @@ void _mostrarDialogo(
                               const SizedBox(width: 8),
                               Text(
                                 'Beneficios:',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                             ],
                           ),
@@ -175,7 +199,8 @@ void _mostrarDialogo(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                       child: const Text('Cerrar'),
@@ -191,11 +216,26 @@ void _mostrarDialogo(
   );
 }
 
-class MyHomePage extends StatelessWidget {
+void _showSnackBar(BuildContext context, String message) {
+  final snackBar = SnackBar(
+    content: Text(message),
+    behavior: SnackBarBehavior.fixed,
+  );
+
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.toggleTheme});
 
   final VoidCallback toggleTheme;
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _cartCount = 0;
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -212,7 +252,7 @@ class MyHomePage extends StatelessWidget {
                     ? Icons.light_mode
                     : Icons.dark_mode,
               ),
-              onPressed: toggleTheme,
+              onPressed: widget.toggleTheme,
             ),
           ],
         ),
@@ -227,48 +267,96 @@ class MyHomePage extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                   SizedBox(
                     width: width > 600 ? 300 : double.infinity,
-                    child: const ProductCard(),
+                    child: ProductCard(
+                      onAddToCart: _incrementCart,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
         ),
+        floatingActionButton: Stack(
+          children: [
+            FloatingActionButton(
+              onPressed: () {},
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: const Icon(Icons.shopping_cart),
+            ),
+            Positioned(
+              right: 0,
+              child: _cartCount > 0
+                  ? CircleAvatar(
+                      radius: 12,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        '$_cartCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    )
+                  : Container(),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _incrementCart() {
+    setState(() {
+      _cartCount++;
+    });
   }
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+  final VoidCallback onAddToCart;
+  const ProductCard({super.key, required this.onAddToCart});
 
   @override
   Widget build(BuildContext context) {
@@ -302,12 +390,23 @@ class ProductCard extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: () {
+                  onAddToCart();
+                  _showSnackBar(context, 'Mango verde agregado al carrito');
                 },
                 child: const Text('Agregar al Carrito'),
               ),
               TextButton(
                 onPressed: () {
-                  _mostrarDialogo(context, 'Mango verde', ['Bien agrio', 'Rico en vitaminas', 'Perfecto con tajin', 'Cascara rica y crujiente'], 'Deliciosa fruta de temporada perfecta para acompañar una michelada o simplemente sola con un poco de sal. Aporta una gran cantidad de vitaminas y minerales esenciales para el cuerpo.');
+                  _mostrarDialogo(
+                      context,
+                      'Mango verde',
+                      [
+                        'Bien agrio',
+                        'Rico en vitaminas',
+                        'Perfecto con tajin',
+                        'Cascara rica y crujiente'
+                      ],
+                      'Deliciosa fruta de temporada perfecta para acompañar una michelada o simplemente sola con un poco de sal. Aporta una gran cantidad de vitaminas y minerales esenciales para el cuerpo.');
                 },
                 child: const Text('Ver Más'),
               ),
